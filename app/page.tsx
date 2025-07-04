@@ -1,28 +1,59 @@
-'use client'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { useToast } from "@/hooks/use-toast"
+import { getTodos, createTodo, removeTodo } from './actions';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Trash2 } from 'lucide-react';
 
-{/* 
-  TEMPLATE PAGE: Home
-  This is a template home page.
-  Replace all content with content that suits the users request.
-*/}
-export default function Home() {
-  const { toast } = useToast()
+export default async function Home() {
+  const todos = await getTodos();
+
   return (
-    <div className="min-h-full">
+    <main className="flex min-h-screen flex-col items-center p-4 sm:p-8 md:p-12 lg:p-24 bg-background text-foreground">
+      <div className="z-10 w-full max-w-2xl items-center justify-between font-mono text-sm lg:flex mb-8">
+        <h1 className="text-4xl font-bold tracking-tight text-center lg:text-left">Modern Todo</h1>
+      </div>
 
-      <section className="container mx-auto px-4 pt-24 pb-20">
-        <div className="max-w-[800px] mx-auto text-center">
-          <h1 className="text-5xl font-bold tracking-tight lg:text-6xl">
-            Template Starter
-          </h1>
-          <p className="mt-6 text-xl text-muted-foreground max-w-[600px] mx-auto">
-            This is a customizable template. Replace all content with your own using the chat interface.
-          </p>
+      <div className="w-full max-w-2xl">
+        {/* Form to Create Todos */}
+        <form action={createTodo} className="flex items-center gap-2 mb-8">
+          <Input
+            type="text"
+            name="text"
+            placeholder="Add a new task..."
+            className="flex-grow"
+            required
+          />
+          <Button type="submit">Add Task</Button>
+        </form>
+
+        {/* Todo List */}
+        <div className="space-y-4">
+          {todos.length > 0 ? (
+            todos.map((todo) => (
+              <div
+                key={todo.id}
+                className="flex items-center justify-between p-4 rounded-lg border bg-card shadow-sm transition-all hover:shadow-md"
+              >
+                <span className={`flex-grow ${todo.completed ? 'line-through text-muted-foreground' : ''}`}>
+                  {todo.text}
+                </span>
+                <form action={async () => {
+                  'use server';
+                  await removeTodo(todo.id);
+                }}>
+                  <Button variant="ghost" size="icon" type="submit">
+                    <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                  </Button>
+                </form>
+              </div>
+            ))
+          ) : (
+            <p className="text-center text-muted-foreground py-8">
+              No tasks yet. Add one above!
+            </p>
+          )}
         </div>
-      </section>
-    </div>
-  )
+      </div>
+    </main>
+  );
 }
+
