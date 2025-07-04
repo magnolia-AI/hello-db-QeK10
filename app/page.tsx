@@ -124,19 +124,23 @@ export default function Home() {
                         const fetchedTodos = await getTodos();
                         setTodos(fetchedTodos);
                       }}>
-                        <button type="submit" className="flex items-center gap-4">
+                        <label className="flex items-center gap-4 cursor-pointer">
                           <Checkbox
                             id={`todo-${todo.id}`}
                             checked={todo.completed}
+                            onCheckedChange={async () => {
+                              await updateTodoCompletion(todo.id, !todo.completed);
+                              const fetchedTodos = await getTodos();
+                              setTodos(fetchedTodos);
+                            }}
                             className="form-checkbox h-5 w-5 text-primary rounded"
                           />
-                          <label
-                            htmlFor={`todo-${todo.id}`}
-                            className={`flex-grow cursor-pointer ${todo.completed ? 'line-through text-muted-foreground' : ''}`}
+                          <span
+                            className={`flex-grow ${todo.completed ? 'line-through text-muted-foreground' : ''}`}
                           >
                             {todo.text}
-                          </label>
-                        </button>
+                          </span>
+                        </label>
                       </form>
                     </div>
                     <div className="flex items-center gap-2">
@@ -166,4 +170,5 @@ export default function Home() {
     </main>
   );
 }
+
 
