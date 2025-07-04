@@ -77,20 +77,49 @@ export async function getTodos() {
 }
 
 /**
- * Removes a todo item by its ID.
+ * Removes a todo item from the database.
  * @param id - The ID of the todo to remove.
  */
 export async function removeTodo(id: string) {
   try {
     await prisma.todo.delete({
-      where: {
-        id: id,
-      },
+      where: { id },
     });
     revalidatePath('/');
   } catch (error) {
     console.error('Failed to remove todo:', error);
-    // Optionally, return an error object
+    // Optionally, return an error message
+  }
+}
+
+/**
+ * Updates the text of a todo item.
+ * @param id - The ID of the todo to update.
+ * @param formData - The form data containing the new todo text.
+ * @returns An object with a success or error message.
+ */
+export async function updateTodo(id: string, formData: FormData) {
+  const validation = todoSchema.safeParse({
+    text: formData.get('text'),
+  });
+
+  if (!validation.success) {
+    return {
+      error: validation.error.flatten().fieldErrors.text?.[0],
+    };
+  }
+
+  try {
+    await prisma.todo.update({
+      where: { id },
+      data: {
+        text: validation.data.text,
+      },
+    });
+    revalidatePath('/');
+    return { success: 'Todo updated successfully.' };
+  } catch (error) {
+    return { error: 'Failed to update todo.' };
   }
 }
 
