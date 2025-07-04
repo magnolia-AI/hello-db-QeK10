@@ -72,7 +72,7 @@ export async function getTodos() {
     return todos;
   } catch (error) {
     console.error('Failed to fetch todos:', error);
-    return []; // Return an empty array on error
+    return [];
   }
 }
 
