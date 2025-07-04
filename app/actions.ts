@@ -39,6 +39,26 @@ export async function createTodo(formData: FormData) {
 }
 
 /**
+ * Updates the completion status of a todo item.
+ * @param id - The ID of the todo to update.
+ * @param completed - The new completion status.
+ * @returns An object indicating success or failure.
+ */
+export async function updateTodoCompletion(id: string, completed: boolean) {
+  try {
+    await prisma.todo.update({
+      where: { id },
+      data: { completed },
+    });
+    revalidatePath('/');
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to update todo:', error);
+    return { success: false, message: 'Failed to update task.' };
+  }
+}
+
+/**
  * Fetches all todo items from the database.
  * @returns A promise that resolves to an array of todos.
  */
@@ -59,17 +79,18 @@ export async function getTodos() {
 /**
  * Removes a todo item by its ID.
  * @param id - The ID of the todo to remove.
- * @returns An object with a success or error message.
  */
 export async function removeTodo(id: string) {
   try {
     await prisma.todo.delete({
-      where: { id },
+      where: {
+        id: id,
+      },
     });
     revalidatePath('/');
-    return { success: 'Todo removed successfully.' };
   } catch (error) {
-    return { error: 'Failed to remove todo.' };
+    console.error('Failed to remove todo:', error);
+    // Optionally, return an error object
   }
 }
 
